@@ -24,6 +24,14 @@ cdfLogSpace param x = 1 - exp (-2 * exp x + exp xb) * gamma * ((2 * exp x + h) *
     gamma = gammaValue param
     h = hValue param
 
+{-
+cdfLogSpace :: CdfParameters -> LogSize -> Double
+cdfLogSpace param x = 1 - 2 ** (-gamma) * gamma * exp (gamma * (-x + xb + exp xb - 2 * (exp x)) + log (1 + 2 * exp x))
+  where
+    xb = xBirth param
+    gamma = gammaValue param
+-}
+
 -- createLinspace lowerBound upperBound numberOfPoints -> result
 createLinspace :: Double -> Double -> Int -> [Double]
 createLinspace _ _ n | n <= 0 = error "Number of points must be positive"
@@ -57,8 +65,8 @@ linearCongruentualGenerator m a c x0 nToTake
 Provide a default fo this function
 -}
 -- uniformDraw seed (length list)
-randomUniform :: Int -> Int -> [RandomNumber]
-randomUniform seed n = tail $ map ((/ fromIntegral (m - 1)) . fromIntegral) (linearCongruentualGenerator m a c seed (n + 1))
+randomUniform :: Int -> Int -> Vector RandomNumber
+randomUniform seed n = fromList $ tail $ map ((/ fromIntegral (m - 1)) . fromIntegral) (linearCongruentualGenerator m a c seed (n + 1))
   where
     m = 2 ^ 31 - 1
     a = 7 ^ 5
@@ -82,8 +90,8 @@ inverseCumSimulation delta u = log10 $ inverseCum 10 delta u
   where
     log10 = logBase 10
 
-toTimeSeries :: (Vector (Maybe Double)) -> TimeSeries
+toTimeSeries :: Vector (Maybe Double) -> TimeSeries
 toTimeSeries = TimeSeries
 
-fromTimeSeries :: TimeSeries -> (Vector (Maybe Double))
+fromTimeSeries :: TimeSeries -> Vector (Maybe Double)
 fromTimeSeries (TimeSeries x) = x

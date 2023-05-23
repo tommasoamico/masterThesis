@@ -3,11 +3,13 @@ module ConstantsAndVectors
     distanceCloseCritical,
     gammaValuesCloseCritical,
     uniformDraws,
+    myRiddersParam,
   )
 where
 
 import Data.Vector (Vector, fromList)
 import DataTypes (RandomNumber)
+import Numeric.RootFinding (RiddersParam (..), Tolerance (..))
 import UtilityFunctions (distanceFromCritical, randomUniform)
 
 criticalPoint :: Double
@@ -25,7 +27,13 @@ gammaValuesCloseCritical :: Vector Double
 gammaValuesCloseCritical = (criticalPoint -) <$> distanceCloseCritical
 
 uniformDraws :: Vector RandomNumber
-uniformDraws = fromList $ randomUniform seed n
+uniformDraws = randomUniform seed n
   where
     seed = 2
     n = length distanceCloseCritical
+
+myTolerance :: Tolerance
+myTolerance = AbsTol 1e-3
+
+myRiddersParam :: RiddersParam
+myRiddersParam = RiddersParam {riddersTol = myTolerance, riddersMaxIter = 10000}

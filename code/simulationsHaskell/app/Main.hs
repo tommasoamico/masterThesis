@@ -30,6 +30,7 @@ vector = DV.toList $ fromTimeSeries $ sizeAtBirth param 500 0
           DT.hValue = 0.0
         }
 -}
+
 matrix :: DV.Vector DT.TimeSeries
 matrix = simulationMatrix uniformDraws gammaValuesCloseCritical 500 99
 
