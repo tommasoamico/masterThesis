@@ -165,3 +165,17 @@ class autoCorrelation:
 
         for i in range(matrix.shape[0]):
             autoCorrelation(matrix[i, :], idNumber=i + 1)
+
+    @classmethod
+    def instantiateFromNpyTS(cls, npyPath, log: bool = True) -> None:
+
+        matrix = np.load(npyPath)
+        nlags = matrix.shape[1] - 1
+        for i in range(matrix.shape[0]):
+            if log:
+                autocorrelation: np.array = acf(np.exp(matrix[i, :]), fft=True,
+                                                nlags=nlags)
+            else:
+                autocorrelation: np.array = acf(matrix[i, :], fft=True,
+                                                nlags=nlags)
+            autoCorrelation(autocorrelation, idNumber=i + 1)

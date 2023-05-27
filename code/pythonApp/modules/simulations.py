@@ -9,11 +9,12 @@ from modules.constantsAndVectors import leftBracketPositiveH, rightBracketPositi
 class simulation:
     all = []
 
-    def __init__(self, gamma: float, seriesLength: float, h: float = 0.) -> None:
+    def __init__(self, gamma: float, seriesLength: float, h: float = 0) -> None:
         self.gamma: float = gamma
+
         self.seriesLength: float = seriesLength
         self.h = h
-
+        self.hSign = np.sign(h)
         simulation.all.append(self)
 
     def __len__(self) -> int:
@@ -36,19 +37,26 @@ class simulation:
 
             return root_scalar(lambda t: cdfLogSpace(t, gamma=self.gamma, xb=xb) - unif, bracket=[leftBracket, rightBracket], method='brentq').root
         else:
+
             return - np.log(2) - (1 / self.gamma) * np.log(np.random.uniform(size=1)) + xb
 
-    def drawCdfPositiveH(self, unif: float, xb: float):
-        root_scalar(lambda t: cdfLogSpacePositiveH(t, gamma=self.gamma, xb=xb, h=self.h) -
-                    unif, bracket=[leftBracketPositiveH, rightBracketPositiveH], method='brentq').root
+    def drawCdfPositiveH(self, unif: float, xb: float) -> float:
+        return root_scalar(lambda t: cdfLogSpacePositiveH(t, gamma=self.gamma, xb=xb, h=self.h) -
+                           unif, bracket=[leftBracketPositiveH, rightBracketPositiveH], method='brentq').root
 
     def sizeAtBirth(self, xb0: float) -> np.array:
+
+        if self.hSign == 0:
+            drawFunc = self.drawCDF
+        else:
+            drawFunc = self.drawCdfPositiveH
         uniformDraws = np.random.uniform(size=self.seriesLength)
 
         logSizes = np.zeros(self.seriesLength)
         logSizes[0] = xb0
         for i in range(1, self.seriesLength):
-            logSizes[i] = self.drawCDF(unif=uniformDraws[i], xb=logSizes[i-1])
+            logSizes[i] = drawFunc(unif=uniformDraws[i],
+                                   xb=logSizes[i-1])
 
         return logSizes
 
@@ -56,8 +64,12 @@ class simulation:
     def drawUniform() -> float:
         return np.random.uniform(size=1)
 
-    def startingPoint(self, b, delta) -> float:
-        return inverseCum(u=self.drawUniform(), b=b, delta=delta)
+    def startingPoint(self, b: float, delta: float) -> float:
+
+        if self.hSign == 0:
+            return inverseCum(u=self.drawUniform(), b=b, delta=delta)
+        else:
+            return self.h
 
     def simulate(self, b: float = 10, delta: float = .1) -> Tuple[np.array]:
         logSizes = self.sizeAtBirth(xb0=np.log(
@@ -67,10 +79,12 @@ class simulation:
 
         return logSizes, autocorrelation
 
-    def simulatePositiveH(self, b: float = 10, delta: float = .1) -> Tuple[np.array]:
-        pass
+    @classmethod
+    def instantiateFromIterableGammas(cls, gammaValues: Iterable, seriesLength: int, h: float) -> None:
+        for gamma in gammaValues:
+            simulation(gamma=gamma, seriesLength=seriesLength, h=h)
 
     @classmethod
-    def instantiateFromIterable(cls, gammaValues: Iterable, seriesLength: int) -> None:
-        for gamma in gammaValues:
-            simulation(gamma=gamma, seriesLength=seriesLength)
+    def instantiateFromIterableHs(cls, gamma: float, seriesLength: int, hValues: Iterable) -> None:
+        for h in hValues:
+            simulation(gamma=gamma, seriesLength=seriesLength, h=h)

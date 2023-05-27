@@ -3,10 +3,11 @@ from typing import Iterable, Union, Tuple, List
 from infix import shift_infix as infix
 from scipy.signal import find_peaks
 from scipy.stats import iqr
-from modules.constantsAndVectors import findPeaksParams
+from modules.constantsAndVectors import findPeaksParams, blues
 import pandas as pd
 from functools import reduce
 from matplotlib.colors import Colormap
+import matplotlib.pyplot as plt
 
 
 @infix
@@ -127,3 +128,21 @@ def powerLaw(x, a, b):
 
 def cdfLogSpacePositiveH(x: Union[float, np.array], xb: Union[float, np.array], gamma: Union[float, np.array], h: Union[float, np.array]) -> Union[float, np.array]:
     return 1 - np.exp((-2*np.exp(x) + np.exp(xb))*gamma) * ((2*np.exp(x) + h)**((-1 + h) * gamma))*((np.exp(xb) + h)**(gamma - h*gamma))
+
+
+def plotMomentScaling(sizesPath: str, maxK: int = 3, title: str = '$<m^k>$ vs $<m>$') -> None:
+    assert maxK <= 5, "Maximum k available is 5"
+    assert isinstance(maxK, int), 'available data is in int format'
+    colorsMoment: List[Tuple[float]] = getColorsFromColormap(
+        blues, maxK - 1, initialPoint=.3)
+    allMeans = np.load(sizesPath + 'allMeans.npy')
+    allMoments = np.load(sizesPath + 'allMoments.npy')
+
+    for i, k in enumerate(range(2, maxK + 1)):
+        plt.scatter(allMeans[i], allMoments[i],
+                    color=colorsMoment[i], label=f'k={k}')
+
+    plt.xlabel('$<m>$', fontsize=15)
+    plt.ylabel(f'$<m^k>$', fontsize=15)
+    plt.title(title, fontsize=18)
+    plt.legend(facecolor='aliceblue', shadow=True, edgecolor='black')
