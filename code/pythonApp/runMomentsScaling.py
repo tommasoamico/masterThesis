@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 from typing import List, Type
 from modules.utilityFunctions import stackList
 
-sizesPath: str = '/Users/tommaso/Desktop/masterThesis/data/positiveH/absorbingHDeltaDecidingShort/timeSerieses.npy'
-savePath: str = '/Users/tommaso/Desktop/masterThesis/data/positiveH/absorbingHDeltaDecidingShort/'
+sizesPath: str = '/Users/tommaso/Desktop/masterThesis/data/nullH/nullH8MilionSamples/timeSerieses.npy'
+savePath: str = '/Users/tommaso/Desktop/masterThesis/data/nullH/nullH8MilionSamples/'
 markovChain.all: List[Type[markovChain]] = []
 markovChain.instantiateFromNpy(sizesPath, log=True)
 kValues: np.array = np.arange(2, 6)

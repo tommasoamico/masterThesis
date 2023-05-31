@@ -10,9 +10,9 @@ from tqdm import tqdm
 
 autoCorrelation.all = []
 # tanouchiPath = '/Users/tommaso/Desktop/masterThesis/data/realData/Tanouchi/Tanouchi25C.csv'
-acorrPath = '/Users/tommaso/Desktop/masterThesis/data/positiveH/absorbingHDeltaDecidingShort/autoCorrelations.npy'
+acorrPath = '/Users/tommaso/Desktop/masterThesis/data/nullH/nullH8MilionSamples/autoCorrelations.npy'
 
-saveResultsPath = '/Users/tommaso/Desktop/masterThesis/data/positiveH/absorbingHDeltaDecidingShort/correlationParameters.csv'
+saveResultsPath = '/Users/tommaso/Desktop/masterThesis/data/nullH/nullH8MilionSamples/correlationParameters.csv'
 
 autoCorrelation.instantiateFromNpy(acorrPath)
 

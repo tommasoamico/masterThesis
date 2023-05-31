@@ -27,7 +27,7 @@ for i, instance in enumerate(tqdm(simulation.all)):
     arraySizes[i, :] = sizes
     arrayAcorr[i, :] = acorr
 
-savePath: str = '/Users/tommaso/Desktop/masterThesis/data/positiveH/absorbingHDeltaDeciding/'
+
 
 
 # np.save(savePath + 'gammaValues.npy', hValueses)
