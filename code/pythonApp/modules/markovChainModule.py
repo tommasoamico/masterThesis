@@ -22,7 +22,7 @@ class markovChain:
     def __enter__(self) -> None:
         return self
 
-    def __exit__(self) -> None:
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         print('Exiting...')
 
     def meanSizeAtBirth(self) -> float:

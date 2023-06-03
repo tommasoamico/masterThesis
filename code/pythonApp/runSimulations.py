@@ -10,17 +10,18 @@ import matplotlib.pyplot as plt
 
 simulation.all: List[Type[simulation]] = []
 
-seriesLength: int = int(8e6)
+seriesLength: int = int(2e6)
+valuesToSave: int = int(1e6)
+valuesToSaveShort = 250
+savePath1: str = '/Users/tommaso/Desktop/masterThesis/data/positiveH/absorbingHHDeciding/'
+savePathShort: str = '/Users/tommaso/Desktop/masterThesis/data/positiveH/absorbingHHDecidingShort/'
 
-savePath: str = '/Users/tommaso/Desktop/masterThesis/data/nullH/nullH8MilionSamples/'
 
-gammaValues: np.array = np.load(savePath + 'gammaValues.npy')
+simulation.instantiateFromIterableHs(
+    gamma=gammaPositiveH, seriesLength=seriesLength, hValues=hValueses)
 
-simulation.instantiateFromIterableGammas(
-    gammaValues=gammaValues, seriesLength=seriesLength, h=0)
-
-arraySizes = np.zeros((len(gammaValues), seriesLength))
-arrayAcorr = np.zeros((len(gammaValues), seriesLength))
+arraySizes = np.zeros((len(hValueses), seriesLength))
+arrayAcorr = np.zeros((len(hValueses), seriesLength))
 
 for i, instance in enumerate(tqdm(simulation.all)):
     sizes, acorr = instance.simulate()
@@ -28,8 +29,8 @@ for i, instance in enumerate(tqdm(simulation.all)):
     arrayAcorr[i, :] = acorr
 
 
-
-
-# np.save(savePath + 'gammaValues.npy', hValueses)
-np.save(savePath + 'timeSerieses.npy', arraySizes)
-np.save(savePath + 'autoCorrelations.npy', arrayAcorr)
+np.save(savePath1 + 'hValues.npy', hValueses)
+np.save(savePathShort + 'hValues.npy', hValueses)
+np.save(savePath1 + 'timeSerieses.npy', arraySizes[:, -valuesToSave:])
+np.save(savePathShort + 'timeSerieses.npy', arraySizes[:, -valuesToSaveShort:])
+np.save(savePath1 + 'autoCorrelations.npy', arrayAcorr)

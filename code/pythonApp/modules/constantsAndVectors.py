@@ -21,7 +21,7 @@ gammaValues: np.array = criticalPoint - gammaGammaC
 # Subject to change depending on the simulation, h > 0 case      #
 ##################################################################
 
-hValueses: np.array = np.linspace(1e-1, 1e-3, 100)
-gammaPositiveH: float = criticalPoint - .2
+hValueses: np.array = np.linspace(8, 13, 100)
+gammaPositiveH: float = criticalPoint + .01
 leftBracketPositiveH = -400
 rightBracketPositiveH = 10
