@@ -10,11 +10,10 @@ import matplotlib.pyplot as plt
 
 simulation.all: List[Type[simulation]] = []
 
-seriesLength: int = int(2e6)
-valuesToSave: int = int(1e6)
-valuesToSaveShort = 250
-savePath1: str = '/Users/tommaso/Desktop/masterThesis/data/positiveH/absorbingHHDeciding/'
-savePathShort: str = '/Users/tommaso/Desktop/masterThesis/data/positiveH/absorbingHHDecidingShort/'
+seriesLength: int = int(1e6)
+valuesToSave: int = int(5e5)
+savePath1: str = '/Users/tommaso/Desktop/masterThesis/data/positiveH/activeHHDeciding/'
+# savePathShort: str = '/Users/tommaso/Desktop/masterThesis/data/positiveH/activeHHDecidingShort/'
 
 
 simulation.instantiateFromIterableHs(
@@ -30,7 +29,7 @@ for i, instance in enumerate(tqdm(simulation.all)):
 
 
 np.save(savePath1 + 'hValues.npy', hValueses)
-np.save(savePathShort + 'hValues.npy', hValueses)
+# np.save(savePathShort + 'hValues.npy', hValueses)
 np.save(savePath1 + 'timeSerieses.npy', arraySizes[:, -valuesToSave:])
-np.save(savePathShort + 'timeSerieses.npy', arraySizes[:, -valuesToSaveShort:])
+# np.save(savePathShort + 'timeSerieses.npy', arraySizes[:, -valuesToSaveShort:])
 np.save(savePath1 + 'autoCorrelations.npy', arrayAcorr)

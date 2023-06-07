@@ -10,17 +10,18 @@ from tqdm import tqdm
 
 autoCorrelation.all = []
 # tanouchiPath = '/Users/tommaso/Desktop/masterThesis/data/realData/Tanouchi/Tanouchi25C.csv'
-acorrPath = '/Users/tommaso/Desktop/masterThesis/data/positiveH/absorbingHHDeciding/autoCorrelations.npy'
+acorrPath = '/Users/tommaso/Desktop/masterThesis/data/positiveH/absorbingHHDecidingShort/timeSerieses.npy'
 
-saveResultsPath = '/Users/tommaso/Desktop/masterThesis/data/positiveH/absorbingHHDeciding/correlationParameters.csv'
+saveResultsPath = '/Users/tommaso/Desktop/masterThesis/data/positiveH/absorbingHHDecidingShort/correlationParameters.csv'
 
-autoCorrelation.instantiateFromNpy(acorrPath)
+autoCorrelation.instantiateFromNpyTS(acorrPath, log=True)
 
 with open(saveResultsPath, mode='w') as f:
-    f.write('exponent,correlation,id')
+    f.write('constant,correlation,id')
     for instance in tqdm(autoCorrelation.all):
         if np.any(np.isnan(instance.autocorrelation)):
             popt = (np.nan, np.nan)
         else:
-            popt = instance.getCorrelationParameters(autocorrelationProduct)
+            popt = instance.getCorrelationParameters(
+                autocorrelationExponential)
         f.write(f'\n{popt[0]},{popt[1]},{instance.idNumber}')

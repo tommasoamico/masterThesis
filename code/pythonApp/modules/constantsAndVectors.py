@@ -14,7 +14,7 @@ blues: Colormap = plt.get_cmap('Blues')
 # Subject to change depending on the simulation, h = 0 case      #
 ##################################################################
 
-gammaGammaC: np.array = [1]  # np.logspace(-1, -3, 100)
+gammaGammaC: np.array = np.logspace(-1, -3, 100)
 gammaValues: np.array = criticalPoint - gammaGammaC
 
 ##################################################################
@@ -22,6 +22,6 @@ gammaValues: np.array = criticalPoint - gammaGammaC
 ##################################################################
 
 hValueses: np.array = np.linspace(8, 13, 100)
-gammaPositiveH: float = criticalPoint + .01
+gammaPositiveH: float = criticalPoint - .01  # .0001
 leftBracketPositiveH = -400
 rightBracketPositiveH = 10

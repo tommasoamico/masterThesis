@@ -17,7 +17,8 @@ class autoCorrelation:
         assert len(autocorrelation.shape) == 1, 'Array must be 1 dimensional'
 
         self.autocorrelation: np.array = autocorrelation
-        self.lags: np.array = rangeAutocorrelation(self.autocorrelation)
+        # self.lags: np.array = rangeAutocorrelation(self.autocorrelation)
+        self.lags: np.array = np.arange(len(self.autocorrelation))
 
         self.xAxis: np.array = np.linspace(
             np.min(self.lags), np.max(self.lags), 1000)
