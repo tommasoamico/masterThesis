@@ -10,10 +10,10 @@ from tqdm import tqdm
 dataPath: Union[str, Path] = Path.cwd().parents[1] / 'data'
 
 sizesPath: Union[str, Path] = dataPath /  \
-    'calibratedModel' / 'lowH' / 'timeSerieses.npy'  # / 'sampledDataReshaped.npy'
+    'calibratedModel' / 'studentsH' / 'timeSerieses.npy'  # / 'sampledDataReshaped.npy'
 
 savePath: Union[str, Path] = dataPath / \
-    'calibratedModel' / 'lowH' / 'momentScaling'
+    'calibratedModel' / 'studentsH' / 'momentScaling'
 
 markovChain.all: List[Type[markovChain]] = []
 markovChain.instantiateFromNpy(sizesPath, log=False)

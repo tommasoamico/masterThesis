@@ -14,7 +14,7 @@ simulation.all: List[Type[simulation]] = []
 
 seriesLength: int = int(1e6)
 valuesToSave: int = int(5e5)
-savePath1: str = '/Users/tommaso/Desktop/masterThesis/data/calibratedModel/lowH/'
+savePath1: str = '/Users/tommaso/Desktop/masterThesis/data/calibratedModel/studentsH/'
 
 assert os.path.exists(savePath1), "Save path does not exists"
 # savePathShort: str = '/Users/tommaso/Desktop/masterThesis/data/positiveH/activeHHDecidingShort/'
@@ -30,7 +30,7 @@ for i, instance in enumerate(tqdm(simulation.all)):
     sizes, acorr = instance.simulateProtein()
     arraySizes[i, :] = sizes
     arrayAcorr[i, :] = acorr
-# print(np.mean(arraySizes[0, :]))
+print(np.mean(arraySizes[0, :]))
 # np.save(savePath1 + 'hValues.npy', hValueses)
 
 np.save(savePath1 + 'timeSerieses.npy', arraySizes[:, -valuesToSave:])

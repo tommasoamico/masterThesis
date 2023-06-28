@@ -22,8 +22,9 @@ gammaValues: np.array = criticalPoint - gammaGammaC
 ##################################################################
 
 # []  # np.linspace(.75, .95, 100)
-hValueses: np.ndarray = np.linspace(.32, .425, 100)
-gammaPositiveH: float = .9  # criticalPoint + 1
+# np.linspace(.32, .425, 100)
+hValueses: np.ndarray = np.linspace(.75, .95, 100)
+gammaPositiveH: float = 15  # criticalPoint + 1
 leftBracketPositiveH = -400
 rightBracketPositiveH = 10
 

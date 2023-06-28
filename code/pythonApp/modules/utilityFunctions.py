@@ -212,3 +212,6 @@ def tanouchiProcessing(pathCsv, seq_len: int):
         newDf: pd.DataFrame = df[df['lineage_ID'] == lineage]
         finalArray[:, lineage-1] = np.array(newDf['length_birth'])[:69]
     return finalArray
+
+
+
