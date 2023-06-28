@@ -4,28 +4,35 @@ module DataTypes
   ( CdfParameters (..),
     TimeSeries (..),
     LogSize,
-    BisectBracket,
     RandomNumber,
     Bracket,
     Size,
+    SimulationParameters (..),
+    SimulationParametersNotMonadic (..),
   )
 where
 
 import Data.Vector qualified as DV
+import System.Random (StdGen)
 
--- implement the Default instance for CdfParameters (Also Functor?)
+
+
 data CdfParameters = CdfParameters
   {xBirth :: Double, gammaValue :: Double, hValue :: Double}
   deriving (Show)
+
+data SimulationParameters = SimulationParameters
+  {params:: CdfParameters, generator::StdGen, accumulatedDraw :: DV.Vector LogSize} deriving (Show)
+
+data SimulationParametersNotMonadic = SimulationParametersNotMonadic
+  {paramsNotMonadic:: CdfParameters, generatorNotMonadic::StdGen} deriving (Show)
 
 type LogSize = Double
 
 type RandomNumber = Double
 
-type BisectBracket = (Double, Double)
-
 type Bracket = (Double, Double)
 
-newtype TimeSeries = TimeSeries (DV.Vector (Maybe Double)) deriving (Show)
+type TimeSeries = DV.Vector LogSize
 
 type Size = Double

@@ -1,39 +1,56 @@
 module ConstantsAndVectors
   ( criticalPoint,
-    distanceCloseCritical,
-    gammaValuesCloseCritical,
-    uniformDraws,
-    myRiddersParam,
+    bracketPositiveH,
+    gammaSim,
+    hSim,
+    hSimList,
+    simulationParams,
+    lengthSimulation,
+    simulationParamsNotMonadic,
   )
 where
 
-import Data.Vector (Vector, fromList)
-import DataTypes (RandomNumber)
-import Numeric.RootFinding (RiddersParam (..), Tolerance (..))
-import UtilityFunctions (distanceFromCritical, randomUniform)
+
+import DataTypes (Bracket, CdfParameters (..), SimulationParameters (..), SimulationParametersNotMonadic(..))
+import UtilityFunctions (startingPointLog)
+import System.Random (StdGen)
+import qualified Control.Applicative as DV
+
+
+
+lengthSimulation :: Int
+lengthSimulation = 5
 
 criticalPoint :: Double
 criticalPoint = 1 / log 2
 
-distanceCloseCritical :: Vector Double
-distanceCloseCritical = distanceFromCritical (lowerLimit, upperLimit) n
-  where
-    n = 100
-    lowerLimit = 1e-2
-    upperLimit = 1e-3
+gammaSim :: Double
+gammaSim = criticalPoint + 0.01
 
--- Active phase (we are below the critical concentration)
-gammaValuesCloseCritical :: Vector Double
-gammaValuesCloseCritical = (criticalPoint -) <$> distanceCloseCritical
+hSim::Double
+hSim = 8
 
-uniformDraws :: Vector RandomNumber
-uniformDraws = randomUniform seed n
-  where
-    seed = 2
-    n = length distanceCloseCritical
+hSimList :: [Double]
+hSimList = [8, 9]
 
+bracketPositiveH :: Bracket
+bracketPositiveH = (-350, 10)
+
+
+simulationParamsCdf :: StdGen -> CdfParameters
+simulationParamsCdf gen = CdfParameters {xBirth = startingPointLog hSim gen, gammaValue = gammaSim, hValue = hSim}
+
+simulationParams :: StdGen -> SimulationParameters
+simulationParams gen = SimulationParameters {params = simulationParamsCdf gen, generator = gen, accumulatedDraw = DV.empty}
+
+simulationParamsNotMonadic :: StdGen -> SimulationParametersNotMonadic
+simulationParamsNotMonadic gen = SimulationParametersNotMonadic {paramsNotMonadic = simulationParamsCdf gen, generatorNotMonadic = gen}
+
+
+{-
 myTolerance :: Tolerance
 myTolerance = AbsTol 1e-3
 
 myRiddersParam :: RiddersParam
 myRiddersParam = RiddersParam {riddersTol = myTolerance, riddersMaxIter = 10000}
+-}

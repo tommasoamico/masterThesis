@@ -1,77 +1,58 @@
 {-# LANGUAGE ImportQualifiedPost #-}
 
 module SimulationFunctions
-  ( simulationMatrix,
-    sizeAtBirth,
-  )
+  (simulate, simulateNotMonadic,)
 where
 
-import ConstantsAndVectors (criticalPoint, distanceCloseCritical, uniformDraws)
-import Data.IntMap (size)
-import Data.Maybe (fromJust)
-import Data.Random (uniform)
-import Data.Vector qualified as DV (Vector, cons, empty, fromList, head, last, map, singleton, snoc, (!), (++))
-import DataTypes (CdfParameters (..), LogSize, RandomNumber, TimeSeries)
+
+import Data.Vector qualified as DV
+import DataTypes (CdfParameters (..), LogSize, SimulationParameters (..), SimulationParametersNotMonadic (..))
 import DrawAlgorithm (drawCDF)
-import UtilityFunctions (deltaFunc, fromTimeSeries, inverseCumSimulation, randomUniform, rootMaybe, toTimeSeries)
+import Control.Monad.State
+    ( MonadTrans(lift),
+      StateT,
+      gets,
+      MonadState(put, get),
+      execStateT )
+import System.Random (randomR)
+import Numeric.RootFinding (Root, fromRoot)
 
--- sizeAtBirth :: CdFParameters -> seriesLength -> counter -> timeseries
-{-
-sizeAtBirth :: CdfParameters -> Int -> Int -> TimeSeries
-sizeAtBirth param seriesLength n
-  | n == seriesLength = toTimeSeries DV.empty
-  | otherwise = toTimeSeries $ DV.cons (Just (xBirth param)) (fromTimeSeries $ sizeAtBirth param' seriesLength (n + 1))
+
+-- sizeAtBirth :: series length -> StateT state Monad resultComputation
+sizeAtBirth :: Int -> StateT SimulationParameters Root LogSize
+sizeAtBirth 0 = gets (xBirth . params)
+sizeAtBirth n = do
+  paramDraw <- get
+  let cdfParams = params paramDraw
+  let currentTs = accumulatedDraw paramDraw
+  let gen = generator paramDraw
+  let (unif, gen') = randomR (0,1) gen
+  newDraw <- lift $ drawCDF cdfParams unif
+  let newTs = DV.snoc currentTs newDraw
+  put $ paramDraw {generator = gen', accumulatedDraw = newTs, params = cdfParams{xBirth = newDraw}}
+  sizeAtBirth (n-1)
+
+-- sizeAtBirthNotMonadic :: seriesLength -> Initial Vector -> initialOarameters -> Result
+sizeAtBirthNotMonadic :: Int -> DV.Vector LogSize -> SimulationParametersNotMonadic -> DV.Vector LogSize
+sizeAtBirthNotMonadic 0 currentTS _ = currentTS
+sizeAtBirthNotMonadic n currentTS parameters = sizeAtBirthNotMonadic (n-1) newTs newParameters
   where
-    --  otherwise = toTimeSeries (DV.singleton $ Just (xBirth param)) DV.++ sizeAtBirth param' seriesLength (n + 1)
-    param' = param {xBirth = fromJust $ rootMaybe $ drawCDF param u}
-    u = DV.head $ randomUniform seed 1
-    seed = 2 * (n + 1)
--}
+    cdfParameters = paramsNotMonadic parameters
+    (unif, gen') = randomR (0,1) (generatorNotMonadic parameters)
+    newDraw = drawCDF cdfParameters unif
+    newTs = DV.snoc currentTS $ fromRoot 0 newDraw
+    newParameters = SimulationParametersNotMonadic {generatorNotMonadic = gen', paramsNotMonadic = cdfParameters{xBirth = fromRoot 0 newDraw}}
 
--- sizeAtBirth :: CdFParameters -> seriesLength -> changeSeed -> timeseries
-sizeAtBirth :: CdfParameters -> Int -> Int -> TimeSeries
-sizeAtBirth _ 0 _ = toTimeSeries DV.empty
-sizeAtBirth param seriesLength changeSeed = toTimeSeries $ DV.cons (Just (xBirth param)) (fromTimeSeries $ sizeAtBirth param' (seriesLength - 1) changeSeed)
-  where
-    --  otherwise = toTimeSeries (DV.singleton $ Just (xBirth param)) DV.++ sizeAtBirth param' seriesLength (n + 1)
-    param' = param {xBirth = fromJust (rootMaybe $ drawCDF param u)}
-    u = DV.head $ randomUniform seed 1
-    seed = 2 * (seriesLength + 1) + changeSeed
 
-{-
-define a default for counter (=length gammas + 1)
--}
--- simulationMatrix :: uniforms-> gammas -> seriesLength -> Counter -> matrix TimeSerieses
 
-simulationMatrix :: DV.Vector RandomNumber -> DV.Vector Double -> Int -> Int -> DV.Vector TimeSeries
-simulationMatrix _ _ _ (-1) = DV.empty
-simulationMatrix us gammaValues seriesLength n = DV.singleton (sizeAtBirth param seriesLength (n ^ 3)) DV.++ simulationMatrix us gammaValues seriesLength (n - 1)
-  where
-    param =
-      CdfParameters
-        { -- xBirth = log $ inverseCumSimulation (deltaFunc (distanceCloseCritical DV.! n)) (uniformDraws DV.! n),
-          xBirth = 0.1,
-          gammaValue = gammaValues DV.! n,
-          hValue = 0.0
-        }
+
+simulate :: Int -> SimulationParameters -> Root (DV.Vector Double)
+simulate n paramDraw =  accumulatedDraw <$> execStateT (sizeAtBirth n) paramDraw
+
+simulateNotMonadic :: Int -> SimulationParametersNotMonadic -> DV.Vector Double
+simulateNotMonadic n paramDraw = sizeAtBirthNotMonadic n DV.empty paramDraw
 
 {-
-import System.Random
-import qualified Data.Vector.Unboxed as V
-
-processVector :: V.Vector Double -> Double
-processVector vec = V.sum vec
-
-generateRandomVector :: Int -> Double -> Double -> IO (V.Vector Double)
-generateRandomVector n lower upper = do
-  gen <- getStdGen
-  let samples = replicate n $ randomR (lower, upper) gen
-  return $ V.fromList samples
-
-main :: IO ()
-main = do
-  randomVector <- generateRandomVector 10 0.0 1.0
-  let result = processVector randomVector
-  print result
-
+simulate :: Int -> SimulationParameters -> Root SimulationParameters
+simulate n paramDraw =  execStateT (sizeAtBirth n) paramDraw
 -}

@@ -15,6 +15,8 @@ class simulation:
         self.seriesLength: float = seriesLength
         self.h = h
         self.hSign = np.sign(h)
+        self.omega2 = self.gamma
+        self.u = self.h
         simulation.all.append(self)
 
     def __len__(self) -> int:
@@ -38,13 +40,13 @@ class simulation:
             return root_scalar(lambda t: cdfLogSpace(t, gamma=self.gamma, xb=xb) - unif, bracket=[leftBracket, rightBracket], method='brentq').root
         else:
 
-            return - np.log(2) - (1 / self.gamma) * np.log(np.random.uniform(size=1)) + xb
+            return - np.log(2) - (1 / self.gamma) * np.log(unif) + xb
 
     def drawCdfPositiveH(self, unif: float, xb: float) -> float:
         return root_scalar(lambda t: cdfLogSpacePositiveH(t, gamma=self.gamma, xb=xb, h=self.h) -
                            unif, bracket=[leftBracketPositiveH, rightBracketPositiveH], method='brentq').root
 
-    def sizeAtBirth(self, xb0: float) -> np.array:
+    def sizeAtBirth(self, xb0: float) -> np.ndarray:
 
         if self.hSign == 0:
             drawFunc = self.drawCDF
@@ -71,7 +73,7 @@ class simulation:
         else:
             return self.h
 
-    def simulate(self, b: float = 10, delta: float = .1) -> Tuple[np.array]:
+    def simulate(self, b: float = 10, delta: float = .1) -> Tuple[np.ndarray]:
         logSizes = self.sizeAtBirth(xb0=np.log(
             self.startingPoint(b=b, delta=delta)))
         autocorrelation = acf(np.exp(logSizes), fft=True,
@@ -88,3 +90,48 @@ class simulation:
     def instantiateFromIterableHs(cls, gamma: float, seriesLength: int, hValues: Iterable) -> None:
         for h in hValues:
             simulation(gamma=gamma, seriesLength=seriesLength, h=h)
+
+    def __cdfProtein(self, mb: float, t: float, t0: float):
+        if t > t0:
+            # * (self.h), (1-mb)/(self.u+1))
+            surv = - ((mb/(self.u+1)) * (self.gamma) * (np.exp(t)-np.exp(t0)) +
+                      ((1-mb)/(self.u+1)) * self.omega2 * (t-t0))
+        else:
+            surv = 0
+
+        return np.exp(surv)
+
+    def __drawTauNumerical(self, unif: float, mb: float) -> float:
+        t0: float = np.max([0,  np.log(1 + (self.u/mb))])
+
+        tau: float = root_scalar(lambda t: self.__cdfProtein(mb=mb, t=t, t0=t0) - unif,
+                                 bracket=[t0, 40], method='brentq').root
+
+        return tau
+
+    @staticmethod
+    def __mFunction(time: float, mb: float) -> float:
+        return mb * np.exp(time)
+
+    def __sizeAtBirthProtein(self, mb0: float) -> np.ndarray:
+        assert self.hSign > 0, "h should be greater than 0"
+
+        uniformDraws: np.ndarray = np.random.uniform(size=self.seriesLength)
+        sizes: np.ndarray = np.zeros(self.seriesLength)
+        sizes[0]: float = mb0
+
+        for i in range(1, self.seriesLength):
+            divisionTime = self.__drawTauNumerical(
+                uniformDraws[i], mb=sizes[i-1]),
+
+            sizes[i] = self.__mFunction(time=divisionTime, mb=sizes[i - 1]) / 2
+
+        return sizes
+
+    def simulateProtein(self) -> Tuple[np.ndarray]:
+        sizes: np.ndarray = self.__sizeAtBirthProtein(
+            mb0=self.startingPoint(b=10, delta=.1))
+        autocorrelation: np.ndarray = acf(sizes, fft=True,
+                                          nlags=len(sizes) - 1)
+
+        return sizes, autocorrelation

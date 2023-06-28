@@ -1,26 +1,28 @@
 module DrawAlgorithm (drawCDF) where
 
-import ConstantsAndVectors (myRiddersParam)
+--import ConstantsAndVectors (myRiddersParam)
 import Data.Default.Class (def)
 import DataTypes (CdfParameters (..), LogSize, RandomNumber)
 import Numeric.RootFinding (Root, ridders)
-import UtilityFunctions (cdfLogSpace)
+import UtilityFunctions (cdfLogSpace, getBracket)
+import ConstantsAndVectors (bracketPositiveH)
 
--- CdfParameters {} {xBirth :: Double, gammaValue :: Double, hValue :: Double}
+-- CdfParameters {xBirth :: Double, gammaValue :: Double, hValue :: Double}
 
 -- functionToInvert CdfParameters unif x
-functionToInvert :: CdfParameters -> Double -> LogSize -> Double
+functionToInvert :: CdfParameters -> RandomNumber -> LogSize -> Double
 functionToInvert param unif x = cdfLogSpace param x - unif
 
+
 {-
-Insert right types + assure correct lower and upper bounds
+This version of draw CDF has overlapping patterns, to review if we want to reason about the program 
 -}
 drawCDF :: CdfParameters -> RandomNumber -> Root LogSize
-drawCDF param unif
-  | signum (functionToInvert param unif lower) * signum (functionToInvert param unif upper) /= -1 = error "Root not bracketed"
-  | otherwise = ridders myRiddersParam (lower, upper) (functionToInvert param unif)
+drawCDF param unif | hValue param > 0.0 = ridders def bracketPositiveH $ functionToInvert param unif
+                    | xBirth param > -20 = ridders def bracket $ functionToInvert param unif
+                    | otherwise = pure $ - log 2 - (1 / gammaValue param) * log unif + xBirth param 
   where
-    -- lower = -log 2 - 2 + xBirth param + exp (xBirth param)
-    -- upper = lower + 50
-    lower = -900 :: Double
-    upper = 20 :: Double
+    bracket = getBracket $ xBirth param
+
+
+                    

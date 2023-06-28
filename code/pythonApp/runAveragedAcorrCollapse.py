@@ -4,7 +4,8 @@ import numpy as np
 from functools import reduce
 import matplotlib.pyplot as plt
 from typing import List, Type, Tuple
-
+from pathlib import Path
+'''
 pathCsv: str = '/Users/tommaso/Desktop/masterThesis/data/realData/Tanouchi/Tanouchi37/Tanouchi37C.csv'
 
 markovChain.all: List[Type[markovChain]] = []
@@ -128,3 +129,9 @@ savePathYAxisSurvival: str = '/Users/tommaso/Desktop/masterThesis/data/realData/
 
 # np.save(savePathXAxisSurvival, saveSurvivalX)
 # np.save(savePathYAxisSurvival, saveSurvivalY)
+'''
+'''
+dataPath: Path = Path.cwd().parents[1] / 'data'
+susmanData: Path = dataPath / 'realData' / \
+    'Susman' / 'longLineages' / 'susmanDataLL.csv'
+'''

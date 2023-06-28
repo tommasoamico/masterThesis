@@ -25,9 +25,11 @@ dependencies:
   - math-functions
   - data-default-class
   - vector
-  - random-fu
   - random
   - containers
+  - mtl
+  - time
+  
 
 ghc-options:
   - -Wall
@@ -39,6 +41,7 @@ ghc-options:
   - -Wmissing-home-modules
   - -Wpartial-fields
   - -Wredundant-constraints
+  - -O2
 
 library:
   source-dirs: src

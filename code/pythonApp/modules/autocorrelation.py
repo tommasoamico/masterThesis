@@ -13,14 +13,14 @@ import pandas as pd
 class autoCorrelation:
     all: list = []
 
-    def __init__(self, autocorrelation: np.array, idNumber: int = 1) -> None:
+    def __init__(self, autocorrelation: np.ndarray, idNumber: int = 1) -> None:
         assert len(autocorrelation.shape) == 1, 'Array must be 1 dimensional'
 
-        self.autocorrelation: np.array = autocorrelation
+        self.autocorrelation: np.ndarray = autocorrelation
         # self.lags: np.array = rangeAutocorrelation(self.autocorrelation)
-        self.lags: np.array = np.arange(len(self.autocorrelation))
+        self.lags: np.ndarray = np.arange(len(self.autocorrelation))
 
-        self.xAxis: np.array = np.linspace(
+        self.xAxis: np.ndarray = np.linspace(
             np.min(self.lags), np.max(self.lags), 1000)
 
         self.idNumber: int = idNumber
@@ -42,7 +42,7 @@ class autoCorrelation:
     def __str__(self) -> str:
         return f'{self.__class__.__name__} instance, id = {self.idNumber}'
 
-    def getAutocorrelationFit(self, aurocorrelationFunction: callable, x: np.array, y: np.array, p0=None) -> Tuple[np.array, np.array, np.array]:
+    def getAutocorrelationFit(self, aurocorrelationFunction: callable, x: np.ndarray, y: np.array, p0=None) -> Tuple[np.array, np.array, np.array]:
         '''
         Fits the time series with a certain autocorrelation function (aurocorrelationFunction) which must take the independent variable as the first argument,
           given a certain autocorrelation vector (autocorrelation)

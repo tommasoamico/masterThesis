@@ -5,16 +5,18 @@ from typing import List, Type, Union
 from modules.utilityFunctions import stackList
 from pathlib import Path
 from scipy.stats import linregress
+from tqdm import tqdm
 
 dataPath: Union[str, Path] = Path.cwd().parents[1] / 'data'
-sizesPath: Union[str, Path] = dataPath / 'positiveH' / \
-    'absorbingHHDecidingShort' / 'timeSerieses.npy'
 
-savePath: Union[str, Path] = dataPath / 'positiveH' / \
-    'absorbingHHDecidingShort' / 'momentScaling'
+sizesPath: Union[str, Path] = dataPath /  \
+    'calibratedModel' / 'lowH' / 'timeSerieses.npy'  # / 'sampledDataReshaped.npy'
+
+savePath: Union[str, Path] = dataPath / \
+    'calibratedModel' / 'lowH' / 'momentScaling'
 
 markovChain.all: List[Type[markovChain]] = []
-markovChain.instantiateFromNpy(sizesPath, log=True)
+markovChain.instantiateFromNpy(sizesPath, log=False)
 kValues: np.array = np.arange(2, 6)
 
 allMoments: List[list] = [list(map(lambda instance: instance.kthMoment(k), markovChain.all))
@@ -26,7 +28,7 @@ allMeans: List[list] = [list(map(lambda x: x.meanSizeAtBirth(),
 
 with open(savePath / 'momentsFit.csv', mode='w') as f:
     f.write('slope,intercept,k\n')
-    for i in range(stackList(allMeans).shape[0]):
+    for i in tqdm(range(stackList(allMeans).shape[0])):
 
         slope, intercept, _, _, _ = linregress(
             stackList(allMeans)[i, :], stackList(allMoments)[i, :])

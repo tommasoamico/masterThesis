@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import Colormap
@@ -21,7 +21,18 @@ gammaValues: np.array = criticalPoint - gammaGammaC
 # Subject to change depending on the simulation, h > 0 case      #
 ##################################################################
 
-hValueses: np.array = np.linspace(8, 13, 100)
-gammaPositiveH: float = criticalPoint - .01  # .0001
+# []  # np.linspace(.75, .95, 100)
+hValueses: np.ndarray = np.linspace(.32, .425, 100)
+gammaPositiveH: float = .9  # criticalPoint + 1
 leftBracketPositiveH = -400
 rightBracketPositiveH = 10
+
+
+slopeSimulation2: float = 1.9496974329535792
+interceptSimulation2: float = 0.09660761792804673
+slopeSimulation3: float = 2.854356191797568
+interceptSimulation3: float = 0.2781725594651162
+
+
+arimaParameters: List[Tuple[int, int, int]] = [
+    (x, y, z) for x in range(4) for y in range(4) for z in range(4)]
