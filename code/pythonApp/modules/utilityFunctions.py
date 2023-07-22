@@ -12,6 +12,7 @@ from scipy.stats import linregress
 from typing import Tuple, Generator, Dict
 from typeguard import typechecked
 from pathlib import Path
+import matplotlib.pyplot as plt
 
 
 @infix
@@ -214,4 +215,20 @@ def tanouchiProcessing(pathCsv, seq_len: int):
     return finalArray
 
 
+@typechecked
+def fitFrequentist(xData: np.ndarray, yData: np.ndarray, outliersIdx: np.ndarray) -> Tuple[float, float]:
+    filteredX: np.ndarray = np.delete(xData, outliersIdx)
+    filteredY: np.ndarray = np.delete(yData, outliersIdx)
 
+    resultFit = linregress(x=filteredX, y=filteredY)
+
+    return resultFit.slope, resultFit.stderr
+
+
+@typechecked
+def errorPropagation1(a: float, error: float):
+    return np.sqrt((1 / a**4) * error ** 2)
+
+
+def errorPropagation2(a: float, error: float):
+    return np.sqrt((((1 / (a**2 * np.log(a))**2)) + (2 / (a**2 * np.log(a)**3)))**2 * error**2)

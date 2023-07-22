@@ -24,9 +24,14 @@ gammaValues: np.array = criticalPoint - gammaGammaC
 # []  # np.linspace(.75, .95, 100)
 # np.linspace(.32, .425, 100)
 hValueses: np.ndarray = np.linspace(.75, .95, 100)
-gammaPositiveH: float = 15  # criticalPoint + 1
+gammaPositiveH: float = 6
 leftBracketPositiveH = -400
 rightBracketPositiveH = 10
+
+__bayesPath: str = '/Users/tommaso/Desktop/masterThesis/data/bayesianInference/'
+stawskiBayes: str = __bayesPath + 'StawskiBayes.csv'
+tanouchi25Bayes: str = __bayesPath + 'Tanouchi25CBayes.csv'
+tanouchi37Bayes: str = __bayesPath + 'Tanouchi37CBayes.csv'
 
 
 slopeSimulation2: float = 1.9496974329535792

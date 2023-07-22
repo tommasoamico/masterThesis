@@ -3,26 +3,29 @@
 
 module Main where
 
-import ConstantsAndVectors (gammaSim, hSim, lengthSimulation, simulationParams, simulationParamsNotMonadic, hSimList)
+import ConstantsAndVectors (gammaSim, hSim, lengthSimulation, simulationParams, simulationParamsNotMonadic, hSimList, savePath)
 import Data.ByteString.Lazy qualified as BL
-import Data.Csv (FromRecord, ToField, ToRecord, encode, toField, toRecord)
-import Data.IntMap (fromList)
-import Data.Vector qualified as DV (Vector, fromList, map, toList, (!), empty, snoc)
+import Data.Csv (FromRecord, ToField, ToRecord, encode, toField, toRecord, record)
+import Data.Sequence ((|>), empty, Seq)
+import Data.Vector qualified as DV
 import DataTypes qualified as DT
 import SimulationFunctions (simulate, simulateNotMonadic)
 import DrawAlgorithm (drawCDF)
 import System.Random (mkStdGen)
 import Numeric.RootFinding (Root, fromRoot, Root(..))
 import Data.Time (diffUTCTime, getCurrentTime)
-import UtilityFunctions (startingPointLog)
+import UtilityFunctions (startingPointLog, encodeSequence)
+import Data.Foldable (toList)
 import DataTypes (LogSize)
-
+import Control.DeepSeq (deepseq)
 
 
 
 
 -- instance ToField a => ToRecord (DT.TimeSeries) where
 -- toRecord (DT.TimeSeries vector) = DV.map toField vector
+
+  
 
 {-
 vector :: [Maybe Double]
@@ -53,63 +56,49 @@ main = do
 --saveTimeseries::[DV.Vector Double]
 
 
-
--- single value
 {-
+-- single value
 main :: IO ()
-main = do 
-  start <- getCurrentTime
+main = do
+
+  let params = simulationParams $ mkStdGen 0
   -- Root DV.Vector Double
-  let timeSeries = simulate lengthSimulation (simulationParams $ mkStdGen 1)
-  --let outOfMonad = fromRoot DV.empty timeSeries
-  -- Root [DV.Vector Double]
-  let listSave = (\x -> [x]) <$> timeSeries
-  -- Root ByteString
-  let csvData = encode <$> listSave
-  --Bytesryng -> IO () | Root ByteString
-  -- Root IO ()
-  let byteData = BL.writeFile "test.csv" <$> csvData
+  start <- getCurrentTime
+  let timeSeries = simulate lengthSimulation params
+  end <- timeSeries `deepseq` getCurrentTime
+  print $ diffUTCTime end start
+{-
+  let byteData = encodeSequence savePath <$> timeSeries
+
   case byteData of
     Root x -> x
     NotBracketed -> putStrLn "NotBracketed"
     SearchFailed -> putStrLn "SearchFailed"
-  end <- getCurrentTime
-  print $ diffUTCTime end start
 -}
+-}
+
+
 
 -- listOfValues
-mainListFunction :: [Double] -> DV.Vector (DV.Vector LogSize)  -> IO ()
-mainListFunction [] vector = do
-  -- [DV.Vector DV.Vector Double]
-  -- Root ByteString
-  let csvData = encode $ DV.toList vector
-  -- Root IO ()
-  BL.writeFile "test.csv"  csvData
-mainListFunction (h:hs) vector = do
+-- mainListFunction hValues, 
+mainListFunction :: [Double]  -> IO ()
+mainListFunction [] = print "Done"
+mainListFunction (h:hs) = do
+  start <- getCurrentTime
   let gen = mkStdGen $ length hs
-  let params = (DT.SimulationParameters {DT.params = DT.CdfParameters {DT.xBirth = startingPointLog h gen, DT.gammaValue = gammaSim, DT.hValue = h}, DT.generator = gen, DT.accumulatedDraw = DV.empty})
+  let params = (DT.SimulationParameters {DT.params = DT.CdfParameters {DT.xBirth = startingPointLog h gen, DT.gammaValue = gammaSim, DT.hValue = h}, DT.generator = gen, DT.accumulatedDraw = empty})
   -- Root DV.Vector Double
-  let timeSeries = simulate lengthSimulation params  
-  -- Root DV.Vector DV.Vector Double
-  let newVector = DV.snoc vector <$> timeSeries
-  case newVector of
-    Root x -> mainListFunction hs x
-    NotBracketed -> putStrLn $ mconcat ["NotBracketed, ", show $ length hs, " h values remaining"] 
-    SearchFailed -> putStrLn $ mconcat["SearchFailed", show $ length hs, " h values remaining"]
+  let timeSeries = simulate lengthSimulation params
+  -- IO ()
+  let byteData = encodeSequence savePath <$> timeSeries
+  case byteData of
+    Root x ->  x
+    NotBracketed -> putStrLn $ mconcat ["NotBracketed, ", show $ length hs, " h values remaining"]
+    SearchFailed -> putStrLn $ mconcat ["SearchFailed", show $ length hs, " h values remaining"]
+  end <- getCurrentTime
+  putStrLn $ mconcat ["Execution Done in ", show $ diffUTCTime end start, show $ length hs, "  h values remaining "]
+  mainListFunction hs
 
 main::IO()
-main = mainListFunction hSimList DV.empty
+main = mainListFunction hSimList
 
-  
---notMonadic
-{-
-main :: IO ()
-main = do
-  start <- getCurrentTime
-  let timeSeries = simulateNotMonadic lengthSimulation (simulationParamsNotMonadic $ mkStdGen 1) 
-  let listSave = [timeSeries]
-  let csvData = encode listSave
-  BL.writeFile "test.csv" csvData
-  end <- getCurrentTime
-  print $ diffUTCTime end start
--}

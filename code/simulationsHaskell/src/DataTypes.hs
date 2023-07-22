@@ -2,7 +2,7 @@
 
 module DataTypes
   ( CdfParameters (..),
-    TimeSeries (..),
+    TimeSeries,
     LogSize,
     RandomNumber,
     Bracket,
@@ -12,8 +12,9 @@ module DataTypes
   )
 where
 
-import Data.Vector qualified as DV
+import Data.Sequence qualified as S
 import System.Random (StdGen)
+
 
 
 
@@ -22,7 +23,7 @@ data CdfParameters = CdfParameters
   deriving (Show)
 
 data SimulationParameters = SimulationParameters
-  {params:: CdfParameters, generator::StdGen, accumulatedDraw :: DV.Vector LogSize} deriving (Show)
+  {params:: CdfParameters, generator::StdGen, accumulatedDraw :: S.Seq LogSize} deriving (Show)
 
 data SimulationParametersNotMonadic = SimulationParametersNotMonadic
   {paramsNotMonadic:: CdfParameters, generatorNotMonadic::StdGen} deriving (Show)
@@ -33,6 +34,6 @@ type RandomNumber = Double
 
 type Bracket = (Double, Double)
 
-type TimeSeries = DV.Vector LogSize
+type TimeSeries = S.Seq LogSize
 
 type Size = Double

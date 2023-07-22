@@ -69,6 +69,16 @@ class systemHandling:
         if show:
             plt.show()
 
+    @typechecked
+    def lr3d(self, slopeRange: np.ndarray, interceptRange: np.ndarray, scatterPoints: Optional[List[Tuple[float, float, str]]] = None, savePath: Optional[str] = None, show: bool = False, title: Optional[str] = None, kIdx: int = 0) -> None:
+        grid: np.ndarray = self.getHeatmapGrid(
+            slopeRange=slopeRange, interceptRange=interceptRange, kIdx=kIdx)
+        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+        from matplotlib import cm
+        X, Y = np.meshgrid(slopeRange, interceptRange)
+        ax.plot_surface(X, Y, grid, cmap=cm.coolwarm, linewidth=0)
+        plt.show()
+
     @classmethod
     def instantiateFromList(cls, listMeans: List[np.ndarray], listMoments: List[np.ndarray]) -> None:
         for means, moments in zip(listMeans, listMoments):

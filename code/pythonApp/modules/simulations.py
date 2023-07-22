@@ -1,9 +1,12 @@
 from modules.utilityFunctions import inverseCum, brackets, cdfLogSpacePositiveH, cdfLogSpace
 import numpy as np
 from scipy.optimize import root_scalar
-from typing import Tuple, Iterable, Type
+from typing import Tuple, Iterable, Type, Union
 from statsmodels.tsa.stattools import acf
 from modules.constantsAndVectors import leftBracketPositiveH, rightBracketPositiveH
+from typeguard import typechecked
+from pathlib import Path
+import pandas as pd
 
 
 class simulation:
@@ -90,6 +93,16 @@ class simulation:
     def instantiateFromIterableHs(cls, gamma: float, seriesLength: int, hValues: Iterable) -> None:
         for h in hValues:
             simulation(gamma=gamma, seriesLength=seriesLength, h=h)
+
+    @typechecked
+    @classmethod
+    def instantiateGammaH(cls, gammaValues: Iterable, hValues: Iterable, seriesLength: int) -> None:
+        assert len(gammaValues) == len(
+            hValues), "gamma values and h values must be of equal number"
+
+        for i in range(len(gammaValues)):
+            simulation(gamma=gammaValues[i],
+                       seriesLength=seriesLength, h=hValues[i])
 
     def __cdfProtein(self, mb: float, t: float, t0: float):
         if t > t0:

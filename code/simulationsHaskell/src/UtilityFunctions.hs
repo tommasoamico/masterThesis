@@ -1,14 +1,20 @@
+{-# LANGUAGE ImportQualifiedPost #-}
+
 module UtilityFunctions
   ( cdfLogSpace,
     getBracket,
     startingPointLog,
+    encodeSequence,
   )
 where
 
-import Data.Vector (Vector, fromList)
+import Data.Sequence (Seq, fromList)
 import DataTypes (Bracket, CdfParameters (..), LogSize, RandomNumber, Size, TimeSeries (..))
 import Numeric.RootFinding (Root (..))
 import System.Random (StdGen, randomR)
+import Data.Csv (encode)
+import Data.ByteString.Lazy qualified as BL
+import Data.Foldable (toList)
 
 cdfLogSpace :: CdfParameters -> LogSize -> Double
 cdfLogSpace param x = 1 - exp((-2* exp x  + exp xb )*gamma) * ((2* exp x  + h)**((-1 + h) * gamma))*(( exp xb  + h)**(gamma - h*gamma))
@@ -56,3 +62,11 @@ getBracket xb | xb <= -7 = (leftBracket, 10)
 startingPointLog :: Double -> StdGen -> LogSize
 startingPointLog h gen | signum h == 0 = log $ inverseCum $ fst $ randomR (0, 1) gen
                     | otherwise = log h
+
+-- encodeSequence sequence fileName
+encodeSequence :: FilePath -> Seq LogSize ->  IO()
+encodeSequence filePath sequenceTS = BL.appendFile filePath csvData
+  where
+    sequenceList = toList sequenceTS
+    listSave = (: []) sequenceList
+    csvData = encode listSave

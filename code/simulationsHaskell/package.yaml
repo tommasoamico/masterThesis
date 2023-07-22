@@ -29,6 +29,9 @@ dependencies:
   - containers
   - mtl
   - time
+  - cassava
+  - bytestring
+  - dsp
   
 
 ghc-options:
@@ -58,6 +61,7 @@ executables:
       - simulationsHaskell
       - bytestring
       - cassava
+      - deepseq
 
 tests:
   simulationsHaskell-test:

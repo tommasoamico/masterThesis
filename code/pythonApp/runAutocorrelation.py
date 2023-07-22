@@ -11,12 +11,12 @@ from tqdm import tqdm
 autoCorrelation.all = []
 # tanouchiPath = '/Users/tommaso/Desktop/masterThesis/data/realData/Tanouchi/Tanouchi25C.csv'
 # ML/timeGAN/GRU/sampledDataReshaped.npy'
-acorrPath = '/Users/tommaso/Desktop/masterThesis/data/calibratedModel/studentsH/timeSerieses.npy'
+acorrPath = '/Users/tommaso/Desktop/masterThesis/data/calibratedModel/bayesianSimTanouchi37ThirdInstance/timeSerieses.npy'
 
 # /timeGAN/GRU/correlationParametersGRU.csv'
-saveResultsPath = '/Users/tommaso/Desktop/masterThesis/data/calibratedModel/studentsH/correlationParameters.csv'
+saveResultsPath = '/Users/tommaso/Desktop/masterThesis/data/calibratedModel/bayesianSimTanouchi37ThirdInstance/correlationParameters.csv'
 
-autoCorrelation.instantiateFromNpyTS(acorrPath, log=False)
+autoCorrelation.instantiateFromNpyTS(npyPath=acorrPath, log=False)
 
 with open(saveResultsPath, mode='w') as f:
     f.write('constant,correlation,id')

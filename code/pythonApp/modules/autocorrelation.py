@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Tuple, List, Type
+from typing import Tuple, List, Type, Optional
 from statsmodels.tsa.stattools import acf
 from scipy.optimize import curve_fit
 from modules.utilityFunctions import rangeAutocorrelation, head2
@@ -8,6 +8,7 @@ from scipy.signal import hilbert
 from modules.utilityFunctions import getPeaks, tail
 from scipy.interpolate import interp1d
 import pandas as pd
+from tqdm import tqdm
 
 
 class autoCorrelation:
@@ -56,12 +57,12 @@ class autoCorrelation:
         popt, pcov = curve_fit(aurocorrelationFunction,
                                x, y, p0=p0)
 
-        yPred: np.array = aurocorrelationFunction(self.lags, *popt)
+        yPred: np.ndarray = aurocorrelationFunction(self.lags, *popt)
 
         return popt, pcov, yPred
 
     @staticmethod
-    def r2Score(yTrue: np.array, yPred: np.array) -> float:
+    def r2Score(yTrue: np.ndarray, yPred: np.ndarray) -> float:
         '''
         Returns the r2Score of two arrays yTrue and yPred
         '''
@@ -114,7 +115,7 @@ class autoCorrelation:
     def instantiateFromCsv(cls, pathCsv: str) -> None:
         df: pd.DataFrame = pd.read_csv(pathCsv)
         df['lineage_ID'] = df['lineage_ID'].astype(int)
-        uniqueLineages: np.array = df['lineage_ID'].unique()
+        uniqueLineages: np.ndarray = df['lineage_ID'].unique()
         for lineage in uniqueLineages:
             newDf: pd.DataFrame = df[df['lineage_ID'] == lineage]
             autocorrelation = acf(
@@ -174,9 +175,26 @@ class autoCorrelation:
         nlags = matrix.shape[1] - 1
         for i in range(matrix.shape[0]):
             if log:
-                autocorrelation: np.array = acf(np.exp(matrix[i, :]), fft=True,
-                                                nlags=nlags)
+                autocorrelation: np.ndarray = acf(np.exp(matrix[i, :]), fft=True,
+                                                  nlags=nlags)
             else:
-                autocorrelation: np.array = acf(matrix[i, :], fft=True,
-                                                nlags=nlags)
+                autocorrelation: np.ndarray = acf(matrix[i, :], fft=True,
+                                                  nlags=nlags)
+            autoCorrelation(autocorrelation, idNumber=i + 1)
+
+    @classmethod
+    def instantiateFromCsvTS(cls, csvPath, log: bool = True, limit: Optional[int] = None) -> None:
+
+        matrix: np.ndarray = np.loadtxt(csvPath, delimiter=',')
+        if limit is not None:
+            assert limit >= 0, "Limit should be positive"
+            matrix: np.ndarray = matrix[:, -limit:]
+        nlags = matrix.shape[1] - 1
+        for i in range(matrix.shape[0]):
+            if log:
+                autocorrelation: np.ndarray = acf(np.exp(matrix[i, :]), fft=True,
+                                                  nlags=nlags)
+            else:
+                autocorrelation: np.ndarray = acf(matrix[i, :], fft=True,
+                                                  nlags=nlags)
             autoCorrelation(autocorrelation, idNumber=i + 1)

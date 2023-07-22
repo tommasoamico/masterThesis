@@ -8,13 +8,14 @@ from scipy.stats import linregress
 from tqdm import tqdm
 
 dataPath: Union[str, Path] = Path.cwd().parents[1] / 'data'
+# /Users/tommaso/Desktop/masterThesis/data/ML/timeGan/tanouchi25/sampledDataReshaped.npy
 
 sizesPath: Union[str, Path] = dataPath /  \
-    'calibratedModel' / 'studentsH' / 'timeSerieses.npy'  # / 'sampledDataReshaped.npy'
+    'calibratedModel' / 'bayesianSimTanouchi37ThirdInstance' / 'timeSerieses.npy'
 
 savePath: Union[str, Path] = dataPath / \
-    'calibratedModel' / 'studentsH' / 'momentScaling'
-
+    'calibratedModel' / 'bayesianSimTanouchi37ThirdInstance' / 'momentScaling'
+# limit = 20000
 markovChain.all: List[Type[markovChain]] = []
 markovChain.instantiateFromNpy(sizesPath, log=False)
 kValues: np.array = np.arange(2, 6)
